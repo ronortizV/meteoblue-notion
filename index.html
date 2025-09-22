@@ -3,26 +3,82 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Meteoblue en Notion</title>
+    <title>Meteoblue → Notion (responsive + auto-refresh)</title>
+
+    <!-- Fallback: refresca la página completa cada 30 min si no hay JS -->
+    <meta http-equiv="refresh" content="1800">
+
     <style>
-      body {margin:0; background:#111; display:flex; justify-content:center; align-items:center;}
-      .wrap {padding:20px;}
+      :root{
+        --max-content-width: 1100px; /* tope de ancho visual */
+        --base-height: 88vh;         /* altura del widget en pantallas grandes */
+        --min-height: 640px;         /* evita que quede muy bajito */
+      }
+      html,body{height:100%; margin:0; background:#111; color:#ddd; font-family:system-ui, sans-serif}
+      .wrap{max-width:var(--max-content-width); margin:0 auto; padding:16px}
+      .frameBox{
+        width:100%;
+        height:min(var(--base-height), 1200px);
+        min-height:var(--min-height);
+        border-radius:10px;
+        overflow:hidden;
+        box-shadow:0 6px 24px rgba(0,0,0,.35);
+        background:#000;
+      }
+      iframe{
+        width:100%;
+        height:100%;
+        border:0;
+      }
+      .credit{
+        margin:10px 4px 0;
+        font-size:12px;
+        opacity:.8;
+        text-align:center;
+      }
+      .credit a{color:#8ec6ff; text-decoration:none}
+      .credit a:hover{text-decoration:underline}
+
+      /* Ajustes para móviles */
+      @media (max-width: 640px){
+        :root{ --base-height: 80vh; --min-height: 520px; }
+        .wrap{ padding:10px; }
+      }
     </style>
   </head>
   <body>
     <div class="wrap">
-      <iframe src="https://www.meteoblue.com/es/tiempo/widget/seeing/santiago-de-cali_colombia_3687925?geoloc=fixed&noground=0"
-              frameborder="0"
-              scrolling="no"
-              allowtransparency="true"
-              sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox"
-              style="width:520px; height:745px; max-width:100%;">
-      </iframe>
-      <div>
-        <!-- DO NOT REMOVE THIS LINK -->
-        <a href="https://www.meteoblue.com/es/tiempo/outdoorsports/seeing/santiago-de-cali_colombia_3687925" 
-           target="_blank" rel="noopener">meteoblue</a>
+      <div class="frameBox">
+        <iframe id="mb" 
+          src="https://www.meteoblue.com/es/tiempo/widget/seeing/santiago-de-cali_colombia_3687925?geoloc=fixed&noground=0"
+          loading="lazy"
+          referrerpolicy="no-referrer"
+          sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox"
+          aria-label="Meteoblue Seeing para Santiago de Cali">
+        </iframe>
+      </div>
+
+      <div class="credit">
+        <!-- DO NOT REMOVE THIS LINK (requisito de Meteoblue) -->
+        <a href="https://www.meteoblue.com/es/tiempo/outdoorsports/seeing/santiago-de-cali_colombia_3687925" target="_blank" rel="noopener">meteoblue</a>
+        · Se actualiza automáticamente cada 30 min
       </div>
     </div>
+
+    <script>
+      // === Auto-refresh cada 30 min, evitando caché con ?ts= ===
+      const BASE_URL = "https://www.meteoblue.com/es/tiempo/widget/seeing/santiago-de-cali_colombia_3687925?geoloc=fixed&noground=0";
+      const REFRESH_MS = 30 * 60 * 1000; // 30 minutos
+
+      const $f = document.getElementById("mb");
+      function refresh() {
+        const ts = Date.now();
+        $f.src = BASE_URL + (BASE_URL.includes("?") ? "&" : "?") + "ts=" + ts;
+      }
+      // primera “anticaché” al cargar
+      refresh();
+      // refrescos periódicos
+      setInterval(refresh, REFRESH_MS);
+    </script>
   </body>
 </html>
