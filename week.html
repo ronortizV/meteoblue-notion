@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Meteoblue Semana (responsive + auto-refresh)</title>
+
+    <!-- Fallback: refresco total cada 30 min -->
+    <meta http-equiv="refresh" content="1800">
+
+    <style>
+      :root{
+        --max-content-width: 1200px;
+        --base-height: 92vh;
+        --min-height: 640px;
+      }
+      html,body{height:100%; margin:0; background:#111; color:#ddd; font-family:system-ui, sans-serif}
+      .wrap{max-width:var(--max-content-width); margin:0 auto; padding:12px}
+      .frameBox{
+        width:100%; height:min(var(--base-height), 1400px);
+        min-height:var(--min-height); border-radius:10px; overflow:hidden;
+        box-shadow:0 6px 24px rgba(0,0,0,.35); background:#000;
+      }
+      iframe{width:100%; height:100%; border:0}
+      .credit{margin:10px 4px 0; font-size:12px; opacity:.8; text-align:center}
+      .credit a{color:#8ec6ff; text-decoration:none}
+      .credit a:hover{text-decoration:underline}
+      @media (max-width:640px){ :root{--base-height:84vh; --min-height:520px} .wrap{padding:8px} }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="frameBox">
+        <iframe id="mb"
+          src="about:blank"
+          loading="lazy"
+          referrerpolicy="no-referrer"
+          sandbox="allow-same-origin allow-scripts allow-popups allow-popups-to-escape-sandbox"
+          aria-label="Meteoblue Semana Santiago de Cali">
+        </iframe>
+      </div>
+      <div class="credit">
+        Fuente: <a href="https://www.meteoblue.com/en/weather/week/santiago-de-cali_colombia_3687925?day=5" target="_blank" rel="noopener">
+        meteoblue (Weekly)</a> · Auto-refresh cada 30 min
+      </div>
+    </div>
+
+    <script>
+      const BASE_URL = "https://www.meteoblue.com/en/weather/week/santiago-de-cali_colombia_3687925?day=5";
+      const REFRESH_MS = 30 * 60 * 1000; // 30 min
+      const iframe = document.getElementById("mb");
+      function refresh() {
+        const ts = Date.now();
+        iframe.src = BASE_URL + (BASE_URL.includes("?") ? "&" : "?") + "ts=" + ts;
+      }
+      refresh();
+      setInterval(refresh, REFRESH_MS);
+    </script>
+  </body>
+</html>
